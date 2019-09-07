@@ -11,7 +11,7 @@ var bodyParser = require('body-parser');
 var app = express();
 
 
-
+const router = require('./router');
 
 
 
@@ -45,16 +45,17 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 //路由
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var uploadRouter = require('./routes/upload');
-var depsRouter = require('./routes/deps');
-
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/upload',uploadRouter);
-app.use('/deps',depsRouter);
+app.use(router);
+// var indexRouter = require('./routes/index');
+// var usersRouter = require('./routes/users');
+// var uploadRouter = require('./routes/upload');
+// var depsRouter = require('./routes/deps');
+//
+//
+// app.use('/', indexRouter);
+// app.use('/user.js', usersRouter);
+// app.use('/upload',uploadRouter);
+// app.use('/deps',depsRouter);
 
 
 

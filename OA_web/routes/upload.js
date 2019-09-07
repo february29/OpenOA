@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var db = require('../model/db');  //引入刚才自定义的模块
+var db = require('../models/db');  //引入刚才自定义的模块
 
 //文件上传中间件
 var multer = require('multer');
@@ -49,7 +49,7 @@ router.post('/single',upload.single('File'),(req,res)=>{
 
 
 
-    db.insert( db.connection(),'INSERT INTO FILES SET ?',{name:req.file.originalname,path:"path",fillpath:"",type:1},function (resultld) {
+    db.insert( db.connection(),'INSERT INTO FILES SET ?',{name:req.file.originalname,path:req.file.path,fillpath:"",type:1},function (resultld) {
 
             res.json({
                 code: '0000',
