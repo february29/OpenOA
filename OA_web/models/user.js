@@ -37,7 +37,8 @@ function User(user) {
  * @param callback
  */
 User.getAllUsers = function(callback){
-    db.query('select * from users', function (err, result) {
+
+    db.query('select A.* ,B.name as dep_name from oa.users A , oa.deps B where A.dep_id = B.id', function (err, result) {
         if (err) {
             return callback(err, null);
         }

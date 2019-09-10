@@ -1,36 +1,62 @@
 var express = require('express');
 var router = express.Router();
-var db = require('../models/db');  //引入刚才自定义的模块
+const Dep = require('../models/dep');
 
+router.get('/getDepsByPId',  function(req, res, next){
 
-//通过id获取用户详情
-router.get('/getDepById', function(req, res, next) {
+    var par = req.method == 'GET'?req.query:req.body;
 
-    var query  = res.query;
-    if (query.id){
-
-        var con = db.connection();
-        db.query(con,'select * from deps where id = ?',[query.id],function (error,results,fields) {
-            var user = results;
-            res.json({
-                code: '0',
-                msg:'请求成功',
-                user:user
-            });
-        })
-
-
-
-    }else{
+    if (!par.p_id){
         res.json({
-            code: '1',
+            code: '-1',
             msg:'参数异常',
 
         })
 
+    } else if (par.p_id == 0){
+        Dep.getAllDeps(function (error,result) {
+            res.json({
+                code: '0',
+                msg:'请求成功',
+                data:result,
+            })
+
+        })
+    }else{
+        Dep.getDepsByPId(par.p_id,function (error,result) {
+            res.json({
+                code: '0',
+                msg:'请求成功',
+                data:result,
+            })
+
+        })
     }
 
 });
+router.get('/getDepById',function(req, res, next){
+    var par = req.method == 'GET'?req.query:req.body;
+
+    if (!par.id){
+        res.json({
+            code: '-1',
+            msg:'参数异常',
+
+        })
+
+    }else{
+        Dep.getDepById(par.id,function (error,result) {
+            res.json({
+                code: '0',
+                msg:'请求成功',
+                data:result,
+            })
+
+        })
+    }
+});
+
+
 
 router.post('/addDep', function(req, res, next) {
 
