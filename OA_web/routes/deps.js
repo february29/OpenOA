@@ -24,11 +24,19 @@ router.get('/getDepsByPId',  function(req, res, next){
         })
     }else{
         Dep.getDepsByPId(par.p_id,function (error,result) {
-            res.json({
-                code: '0',
-                msg:'请求成功',
-                data:result,
-            })
+            if (result){
+                res.json({
+                    code: '0',
+                    msg:'请求成功',
+                    data:result,
+                })
+            }else{
+                res.json({
+                    code: '-2',
+                    msg:'请求失败',
+
+                })
+            }
 
         })
     }
@@ -46,11 +54,19 @@ router.get('/getDepById',function(req, res, next){
 
     }else{
         Dep.getDepById(par.id,function (error,result) {
-            res.json({
-                code: '0',
-                msg:'请求成功',
-                data:result,
-            })
+            if (result){
+                res.json({
+                    code: '0',
+                    msg:'请求成功',
+                    data:result,
+                })
+            }else{
+                res.json({
+                    code: '-2',
+                    msg:'请求失败',
+
+                })
+            }
 
         })
     }
@@ -80,11 +96,19 @@ router.post('/addDep', function(req, res, next) {
             },
             function (result) {
 
-                res.json({
-                    code: '0',
-                    msg:'操作成功',
-                    dep:result
-                });
+                if (result){
+                    res.json({
+                        code: '0',
+                        msg:'操作成功',
+                        data:result,
+                    })
+                }else{
+                    res.json({
+                        code: '-2',
+                        msg:'操作失败',
+
+                    })
+                }
 
 
 

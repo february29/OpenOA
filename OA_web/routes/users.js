@@ -10,7 +10,7 @@ router.post('/doAddUser', function (req,res,next) {
     var par = req.body;
     console.log("post请求：参数 body", par);
     if (!par.name||!par.username||!par.password){
-        res.json({
+       return  res.json({
             code: '-1',
             msg:'参数异常',
 
@@ -77,19 +77,35 @@ router.get('/getUsersByDepId', function (req,res,next) {
 
     }else if(par.dep_id == 0){
         User.getAllUsers(function (error,result) {
-            res.json({
-                code: '0',
-                msg:'请求成功',
-                data:result,
-            })
+            if (result){
+                res.json({
+                    code: '0',
+                    msg:'请求成功',
+                    data:result,
+                })
+            }else{
+                res.json({
+                    code: '-2',
+                    msg:'请求失败',
+
+                })
+            }
         })
     }else{
         User.getUserByDepId(par.dep_id,function (error,result) {
-            res.json({
-                code: '0',
-                msg:'请求成功',
-                data:result,
-            })
+            if (result){
+                res.json({
+                    code: '0',
+                    msg:'请求成功',
+                    data:result,
+                })
+            }else{
+                res.json({
+                    code: '-2',
+                    msg:'请求失败',
+
+                })
+            }
 
         })
     }
@@ -106,18 +122,19 @@ router.get('/getUserById',  function (req,res,next) {
 
     }else{
         User.getUserById(par.id,function (error,result) {
-            if (error){
+            if (result){
                 res.json({
                     code: '0',
-                    msg:'请求失败',
+                    msg:'操作成功',
                     data:result,
                 })
+            }else{
+                res.json({
+                    code: '-2',
+                    msg:'操作失败',
+
+                })
             }
-            res.json({
-                code: '0',
-                msg:'请求成功',
-                data:result,
-            })
 
         })
     }

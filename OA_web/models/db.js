@@ -58,7 +58,8 @@
 const mysql = require('mysql');
 const fs = require('fs');
 const path = require('path');
-let propertis = getProperties();
+var async = require("async");
+
 const _config = require('../config.config');
 
 
@@ -130,7 +131,7 @@ exports.query = function (sql, p, c) {
  * @param pool
  * @param sql
  */
-exports.queryInstall = function (pool, callback) {
+exports.queryInstall = function ( callback) {
     // 开始创建一个连接池
     pool.getConnection(function (err, connection) {
         if (err)
@@ -139,21 +140,81 @@ exports.queryInstall = function (pool, callback) {
     })
 }
 
+exports.getConnection = function(callback) {
+    pool.getConnection(function (err, connection) {
+        if (err)
+            return callback(err ,null);
+        callback(null, connection);
+    })
+}
+
 
 /**
- * 开始批量执行程序的sql语句
- * @param pool
- * @param sql
+ * 开始批量执行程序的sql语句   待完善
+
+ * @param sqlparamsEntities
  * @param callback
  */
-exports.batchExecuteSQL = function (pool, sql, callback) {
+exports.executeTransaction = function ( sqlparamsEntities, callback) {
     // 从数据库连接池中取出可以使用的链接
     pool.getConnection(function (err, connection) {
-        connection.query(sql, function (err, rows) {
-            // 使用完毕放回去连接池中，然后释放链接
-            connection.release();
-            callback.apply(null, arguments);
-        });
+
+        connection.beginTransaction(function (err) {
+            if (err) {
+                return callback(err, null);
+            }
+            console.log("开始执行transaction，共执行" + sqlparamsEntities.length + "条数据");
+            var funcAry = [];
+            sqlparamsEntities.forEach(function (sql_param) {
+                var temp = function (cb) {
+                    var sql = sql_param.sql;
+                    var param = sql_param.params;
+                    connection.query(sql, param, function (tErr, rows, fields) {
+                        if (tErr) {
+                            connection.rollback(function () {
+                                console.log("事务失败，" + sql_param + "，ERROR：" + tErr);
+                                throw tErr;
+                            });
+                        } else {
+                            return cb(null, 'ok');
+                        }
+                    })
+                };
+                funcAry.push(temp);
+            });
+
+
+            async.series(funcAry, function (err, result) {
+                console.log("transaction error: " + err);
+                 if (err) {
+                    connection.rollback(function (err) {
+                        console.log("transaction error: " + err);
+                        connection.release();
+                        return callback(err, null);
+                    });
+                } else {
+                    connection.commit(function (err, info) {
+                        console.log("transaction info: " + JSON.stringify(info));
+                        if (err) {
+                            console.log("执行事务失败，" + err);
+                            connection.rollback(function (err) {
+                                console.log("transaction error: " + err);
+                                connection.release();
+                                return callback(err, null);
+                            });
+                        } else {
+                            connection.release();
+                            return callback(null, info);
+                        }
+                    })
+                }
+            })
+        // connection.query(sql, function (err, rows) {
+        //     // 使用完毕放回去连接池中，然后释放链接
+        //     connection.release();
+        //     callback.apply(null, arguments);
+        // });
+        })
     })
 }
 

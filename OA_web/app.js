@@ -49,6 +49,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var depsRouter = require('./routes/deps');
+var dailyRouter = require('./routes/daily');
 var uploadRouter = require('./routes/upload');
 
 
@@ -57,6 +58,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/upload',uploadRouter);
 app.use('/deps',depsRouter);
+app.use('/daily',dailyRouter);
 
 
 

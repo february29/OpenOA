@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
+const jwt = require('jsonwebtoken');  //用来生成token
 const User = require('../models/user');
+const _config = require('../config.config');
 
 router.post('/doLogin', function (req, res, next) {
     // 1. 获取用户输入的参数信息
@@ -77,6 +79,21 @@ router.post('/doLogin', function (req, res, next) {
         //     //console.log('用户的登录日志文件已经成功写入到数据库！', result)
         // })
 
+        let info = {id:result.id,name:result.name};
+        let token = jwt.sign(info, _config.jsonwebtokenkey, {
+            expiresIn: 60*60*1  // 1小时过期
+        });
+
+        jwt.verify(token, _config.jsonwebtokenkey, (error, decoded) => {
+            if (error) {
+                console.log(error.message)
+                return
+            }
+            console.log(decoded)
+        })
+        console.log(token);
+
+
         // 跳转到首页
         res.json({
             code: 1,
@@ -85,7 +102,7 @@ router.post('/doLogin', function (req, res, next) {
         });
     });
 });
-    // 用户登录
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
     res.type('html');

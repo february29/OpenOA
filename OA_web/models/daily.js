@@ -3,11 +3,7 @@ var db = require('./db');
 
 
 let tableName = 'dailys'
-/**
- * 创建一个User对象，用于映射数据中的关系表
- * @param user
- * @constructor
- */
+
 
 
 function Daily(daily) {
@@ -16,10 +12,10 @@ function Daily(daily) {
     this.work_date = daily.work_date;
     this.content = daily.content;
     this.plane = daily.plane;
-    this.low_id = daily.low_id;
     this.commit_id = daily.commit_id;
-    this.score = daily.score;
-    this.evaluation = daily.evaluation;
+    this.low_id = daily.low_id;
+    this.next_id = daily.next_id;
+    this.state = daily.state;
 
 
 
@@ -75,27 +71,45 @@ Daily.geDailyById = function (dailyId, callback) {
     })
 }
 
+Daily.updateById = function ( dailyId,updatePar, callback) {
+
+
+
+    db.query("update  " + tableName + ` set ? where id = ?` , [updatePar,dailyId], function (err, result) {
+        if (err) {
+            return callback(err, null);
+        }
+        callback(null, result);
+    })
+}
+
 /**
  * 函数的原型方法（使用之前需要先new 一个实例对象， 然后就可以在线面直接使用this 这个属性了，  原型方法是子类实例都可以循环调用的）
  * @param callback
  */
 Daily.prototype.save = function (callback) {
 
-    db.query('INSERT ignore INTO  ' +tableName + "SET ?"
+    db.query('INSERT ignore INTO  ' +tableName + " SET ?"
         , {
-            name:this.name,
-            short_name:this.short_name,
-            p_id:this.p_id,
-
-
+            add_time:this.add_time ,
+            work_date:this.work_date ,
+            content:this.content ,
+            plane:this.plane ,
+            low_id:this.low_id ,
+            next_id:this.low_id ,
+            commit_id:this.commit_id,
+            state:0,
         }
         , function (err, result) {
             if (err) {
-                return callback(err, null);
+                 callback(err, null);
+
+            }else{
+                callback(null, result);
             }
 
-            // 返回插入数据的ID编号
-            callback(null, result);
+
+
         });
 
 }
@@ -104,15 +118,27 @@ Daily.prototype.save = function (callback) {
 //=============================================流程相关=====================================================
 
 
-let tableName2 = 'daily_flows'
 
-Daily.getFlowsByDailyId = function(dailyId){
-    db.query("select * from " + tableName2 + ` where daily_id = ?`, [dailyId], function (err, result) {
-        if (err) {
-            return callback(err, null);
-        }
-        callback(null, result);
-    })
+// =============================================事务=========================================================
+
+Daily.approvalDaily = function(dailyId,dailyUpdatePar,newDailyFlow,callBack){
+
+
+    let sqlparams1 = {
+        sql:"update  " + tableName + ` set ? where id = ?`,
+        parameter:[dailyUpdatePar,dailyId]
+    }
+    let sqlparams2 = {
+        sql:"insert  into" + tableName2 + ` set ?`,
+        parameter:newDailyFlow
+    }
+
+    let  sqlparamsEntities = [sqlparams1,sqlparams2];
+   db.executeTransaction(sqlparamsEntities,function (err,result) {
+
+       callBack(err,result);
+   })
+
 }
 
 
