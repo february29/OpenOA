@@ -120,7 +120,13 @@ Daily.prototype.save = function (callback) {
 
 
 // =============================================事务=========================================================
-
+/**
+ * 审批日报 添加审批流程，修改日报状态
+ * @param dailyId  日报id
+ * @param dailyUpdatePar  日报状态参数 转报是需要额外传递next_id
+ * @param newDailyFlow 新的流程参数
+ * @param callBack 回调
+ */
 Daily.approvalDaily = function(dailyId,dailyUpdatePar,newDailyFlow,callBack){
 
 
