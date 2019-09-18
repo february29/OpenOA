@@ -2,7 +2,6 @@ var db = require('./db');
 
 
 
-let tableName = 'dailys'
 
 
 
@@ -27,7 +26,7 @@ function Daily(daily) {
  * @param callback
  */
 Daily.getAllDaily = function(callback){
-    db.query('select * from '+ tableName, function (err, result) {
+    db.query('select * from dailys', function (err, result) {
         if (err) {
             return callback(err, null);
         }
@@ -36,7 +35,7 @@ Daily.getAllDaily = function(callback){
 }
 
 Daily.getDailysByUserID = function(userId,callback){
-    db.query('select * from '+ tableName + 'where commit_id = ?', [userId],function (err, result) {
+    db.query('select * from dailys where commit_id = ?', [userId],function (err, result) {
         if (err) {
             return callback(err, null);
         }
@@ -45,7 +44,7 @@ Daily.getDailysByUserID = function(userId,callback){
 }
 
 Daily.getDailysByLowID = function(lowId,callback){
-    db.query('select * from '+ tableName + 'where low_id = ?', [userId],function (err, result) {
+    db.query('select * from dailys where low_id = ?', [userId],function (err, result) {
         if (err) {
             return callback(err, null);
         }
@@ -63,11 +62,16 @@ Daily.geDailyById = function (dailyId, callback) {
 
 
 
-    db.query("select * from " + tableName + ` where id = ?`, [dailyId], function (err, result) {
+    db.query("select A.* , B.name as commitName , C.name as nextName ,D.name as lowName" +
+        " from dailys A" +
+        " left join users B on  A.commit_id = B.id" +
+        " left join users C on  A.next_id = C.id" +
+        " left join users D on  A.low_id = D.id" +
+        " where A.id = ?", [dailyId], function (err, result) {
         if (err) {
             return callback(err, null);
         }
-        callback(null, result);
+        callback(null, result[0]);
     })
 }
 
@@ -75,7 +79,7 @@ Daily.updateById = function ( dailyId,updatePar, callback) {
 
 
 
-    db.query("update  " + tableName + ` set ? where id = ?` , [updatePar,dailyId], function (err, result) {
+    db.query("update  dailys set ? where id = ?" , [updatePar,dailyId], function (err, result) {
         if (err) {
             return callback(err, null);
         }
@@ -89,7 +93,7 @@ Daily.updateById = function ( dailyId,updatePar, callback) {
  */
 Daily.prototype.save = function (callback) {
 
-    db.query('INSERT ignore INTO  ' +tableName + " SET ?"
+    db.query("INSERT ignore INTO  dailys SET ?"
         , {
             add_time:this.add_time ,
             work_date:this.work_date ,
@@ -130,16 +134,18 @@ Daily.prototype.save = function (callback) {
 Daily.approvalDaily = function(dailyId,dailyUpdatePar,newDailyFlow,callBack){
 
 
+
+
     let sqlparams1 = {
-        sql:"update  " + tableName + ` set ? where id = ?`,
-        parameter:[dailyUpdatePar,dailyId]
+        sql:"update  dailys  set ? where id = ?",
+        params:[dailyUpdatePar,dailyId]
     }
     let sqlparams2 = {
-        sql:"insert  into" + tableName2 + ` set ?`,
-        parameter:newDailyFlow
+        sql:"insert  into daily_flows set ?",
+        params:newDailyFlow
     }
 
-    let  sqlparamsEntities = [sqlparams1,sqlparams2];
+    let  sqlparamsEntities = [sqlparams2,sqlparams1];
    db.executeTransaction(sqlparamsEntities,function (err,result) {
 
        callBack(err,result);

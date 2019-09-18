@@ -163,7 +163,8 @@ exports.executeTransaction = function ( sqlparamsEntities, callback) {
             if (err) {
                 return callback(err, null);
             }
-            console.log("开始执行transaction，共执行" + sqlparamsEntities.length + "条数据");
+            console.log("开始执行transaction，共执行" + sqlparamsEntities.length + "条数据" );
+            console.log(sqlparamsEntities);
             var funcAry = [];
             sqlparamsEntities.forEach(function (sql_param) {
                 var temp = function (cb) {

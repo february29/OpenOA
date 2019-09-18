@@ -30,8 +30,13 @@ function DailyFlow(dailyFlow) {
 }
 
 
-DailyFlow.getFlowsByDailyId = function(dailyId){
-    db.query("select * from " + tableName + ` where daily_id = ?`, [dailyId], function (err, result) {
+DailyFlow.getFlowsByDailyId = function(dailyId,callback){
+    db.query("select A.* , B.name as commitName , C.name as nextName"  +
+        " from daily_flows  A " +
+        " left join users B on A.commit_id = B.id" +
+        " left join users C on A.next_id = C.id" +
+        " where A.daily_id = ?" +
+        " order by add_time ASC ", [dailyId], function (err, result) {
         if (err) {
             return callback(err, null);
         }
@@ -67,3 +72,5 @@ DailyFlow.prototype.save = function (callback) {
 
 
 }
+
+module.exports = DailyFlow;

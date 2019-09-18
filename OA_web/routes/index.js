@@ -84,21 +84,22 @@ router.post('/doLogin', function (req, res, next) {
             expiresIn: 60*60*1  // 1小时过期
         });
 
-        jwt.verify(token, _config.jsonwebtokenkey, (error, decoded) => {
-            if (error) {
-                console.log(error.message)
-                return
-            }
-            console.log(decoded)
-        })
-        console.log(token);
+        // jwt.verify(token, _config.jsonwebtokenkey, (error, decoded) => {
+        //     if (error) {
+        //         console.log(error.message)
+        //         return
+        //     }
+        //     console.log(decoded)
+        // })
+        // console.log(token);
 
 
-        // 跳转到首页
+        // 成功
         res.json({
             code: 1,
             msg: 'success',
-            data:result
+            data:result,
+            token:token
         });
     });
 });
