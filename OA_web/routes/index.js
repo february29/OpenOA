@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
-const jwt = require('jsonwebtoken');  //用来生成token
+const token_verify = require('../utils/token_vertify');
 const User = require('../models/user');
-const _config = require('../config.config');
+
 
 router.post('/doLogin', function (req, res, next) {
     // 1. 获取用户输入的参数信息
@@ -80,9 +80,26 @@ router.post('/doLogin', function (req, res, next) {
         // })
 
         let info = {id:result.id,name:result.name};
-        let token = jwt.sign(info, _config.jsonwebtokenkey, {
-            expiresIn: 60*60*1  // 1小时过期
-        });
+
+       let token =  token_verify.setToken(info).then((data)=>{
+           // 成功
+           return res.json({
+               code: 0,
+               msg: 'success',
+               data:result,
+               token:data
+           });
+        }).catch((err)=>{
+           return res.json({
+               code: -1,
+               msg: 'error',
+               error:err
+
+           });
+       });
+        // let token = jwt.sign(info, _config.jsonwebtokenkey, {
+        //     expiresIn: 60*60*1  // 1小时过期
+        // });
 
         // jwt.verify(token, _config.jsonwebtokenkey, (error, decoded) => {
         //     if (error) {
@@ -94,13 +111,7 @@ router.post('/doLogin', function (req, res, next) {
         // console.log(token);
 
 
-        // 成功
-        res.json({
-            code: 1,
-            msg: 'success',
-            data:result,
-            token:token
-        });
+
     });
 });
 

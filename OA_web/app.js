@@ -7,8 +7,8 @@ var fs = require("fs");
 var ejs = require('ejs');  //我是新引入的ejs插件
 // 引入json解析中间件
 var bodyParser = require('body-parser');
-var jwt = require('jsonwebtoken');  //token
-const _config = require('./config.config');
+
+const token_verify = require('./utils/token_vertify');
 
 var app = express();
 
@@ -56,11 +56,7 @@ var uploadRouter = require('./routes/upload');
 
 
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/upload',uploadRouter);
-app.use('/deps',depsRouter);
-app.use('/daily',dailyRouter);
+
 
 
 
@@ -69,43 +65,56 @@ app.use(function (req, res, next) {
 
 
     // 我这里知识把登陆和注册请求去掉了，其他的多有请求都需要进行token校验
-    if (req.url != '/login' && req.url != '/register') {
+    if (req.url != '/doLogin' && req.url != '/doLogin') {
 
         var par = req.method == 'GET'?req.query:req.body;
         var token = req.headers.token;
         if (!token){
             token = par.token;
         }
-
-        jwt.verify(token, _config.jsonwebtokenkey, (error, decoded) => {
-            if (error) {
+        if (!token){
+            res.send({status: 403, msg: '请传递参数token'});
+        }else{
+            token_verify.verToken(token).then((data)=> {
+                req.data = data;
+                return next();
+            }).catch((error)=>{
                 console.log(error.message)
-                res.send({status: 403, msg: '登录已过期,请重新登录'}
-                return
-            }
-            console.log(decoded)
-            next()
-        })
+                res.send({
+                    status: 403,
+                    msg: '登录已过期,请重新登录'});
 
-
-
-        let jwt = new JwtUtil(token);
-        let result = jwt.verifyToken();
-        // 如果考验通过就next，否则就返回登陆信息不正确
-        if (result == 'err') {
-            console.log(result);
-            res.send({status: 403, msg: '登录已过期,请重新登录'});
-            // res.render('login.html');
-        } else {
-            next();
+            })
         }
+
+
+        // jwt.verify(token, _config.jsonwebtokenkey, (error, decoded) => {
+        //     if (error) {
+        //         console.log(error.message)
+        //         // res.send({status: 403, msg: '登录已过期,请重新登录'}
+        //         return
+        //     }
+        //     console.log(decoded)
+        //     next()
+        // })
+
+
+
+
     } else {
         next();
     }
 });
 
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/upload',uploadRouter);
+app.use('/deps',depsRouter);
+app.use('/daily',dailyRouter);
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
+
   next(createError(404));
 });
 
