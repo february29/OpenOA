@@ -3,7 +3,7 @@ var signkey = 'february29';
 
 exports.setToken = function(info){
     return new Promise((resolve,reject)=>{
-        const token = jwt.sign(info,signkey,{ expiresIn:'1h' });
+        const token = jwt.sign(info,signkey,{ expiresIn:'24h' });
         resolve(token);
     })
 }
@@ -17,7 +17,7 @@ exports.verToken = function(token){
 
                     reject(error);
                 }else{
-                    console.log(decoded)
+                    // console.log(decoded)
                     resolve(decoded);
                 }
 

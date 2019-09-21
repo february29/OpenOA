@@ -73,47 +73,91 @@ router.get('/getDepById',function(req, res, next){
 });
 
 
+router.get('/getAllDep',function(req, res, next){
+    var par = req.method == 'GET'?req.query:req.body;
+
+    Dep.getAllDeps(function (error,result) {
+        if (result){
+            res.json({
+                code: '0',
+                msg:'请求成功',
+                data:result,
+            })
+        }else{
+            res.json({
+                code: '-2',
+                msg:'请求失败',
+
+            })
+        }
+
+    })
+});
+
+
 
 router.post('/addDep', function(req, res, next) {
 
     // 获取参数
     // var query = req.body;
     // console.log("post请求：参数 body", query);
-    var par = req.query;
-    console.log("post请求：参数 query", par);
-    if (!par.name){
+    var par = req.method == 'GET'?req.query:req.body;
+
+    if (!par.name||!par.p_id){
         res.json({
-            code: '1',
+            code: '-1',
             msg:'参数异常',
 
         })
     }else{
-        db.insert( db.connection(),'INSERT ignore INTO deps SET ?',
-            {
+
+
+        new Dep({
                 name:par.name,
                 short_name:par.short_name,
-                p_id:"0"
-            },
-            function (result) {
+                p_id:par.p_id,
+             }).save(function (err,result) {
+                 if (err){
+                     console.log("====="+err)
+                     res.json({
+                         code: '-2',
+                         msg:'操作失败',
+                     })
+                 }else{
+                     res.json({
+                         code: '0',
+                         msg:'操作成功',
+                         data:result,
+                     })
+                 }
 
-                if (result){
-                    res.json({
-                        code: '0',
-                        msg:'操作成功',
-                        data:result,
-                    })
-                }else{
-                    res.json({
-                        code: '-2',
-                        msg:'操作失败',
-
-                    })
-                }
-
-
-
-
-            })
+        })
+        // db.insert( db.connection(),'INSERT ignore INTO deps SET ?',
+        //     {
+        //         name:par.name,
+        //         short_name:par.short_name,
+        //         p_id:"0"
+        //     },
+        //     function (result) {
+        //
+        //         if (result){
+        //             res.json({
+        //                 code: '0',
+        //                 msg:'操作成功',
+        //                 data:result,
+        //             })
+        //         }else{
+        //             res.json({
+        //                 code: '-2',
+        //                 msg:'操作失败',
+        //
+        //             })
+        //         }
+        //
+        //
+        //
+        //
+        //     })
     }
 
 

@@ -59,7 +59,7 @@ Dep.getDepById = function (depId, callback) {
         if (err) {
             return callback(err, null);
         }
-        callback(null, result);
+        callback(null, result[0]);
     })
 }
 
@@ -92,7 +92,7 @@ Dep.getDepsByPId = function(depPid ,callback){
  */
 Dep.prototype.save = function (callback) {
 
-    db.query('INSERT ignore INTO  ' +tableName + "SET ?"
+    db.query('INSERT  INTO  ' +tableName + " SET ?"
         , {
             name:this.name,
             short_name:this.short_name,

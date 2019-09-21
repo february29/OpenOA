@@ -62,8 +62,6 @@ var uploadRouter = require('./routes/upload');
 
 
 app.use(function (req, res, next) {
-
-
     // 我这里知识把登陆和注册请求去掉了，其他的多有请求都需要进行token校验
     if (req.url != '/doLogin' && req.url != '/doLogin') {
 
@@ -89,20 +87,6 @@ app.use(function (req, res, next) {
             })
         }
 
-
-        // jwt.verify(token, _config.jsonwebtokenkey, (error, decoded) => {
-        //     if (error) {
-        //         console.log(error.message)
-        //         // res.send({status: 403, msg: '登录已过期,请重新登录'}
-        //         return
-        //     }
-        //     console.log(decoded)
-        //     next()
-        // })
-
-
-
-
     } else {
         next();
     }
@@ -116,7 +100,6 @@ app.use('/daily',dailyRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-
   next(createError(404));
 });
 
