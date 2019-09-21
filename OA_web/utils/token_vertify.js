@@ -10,7 +10,18 @@ exports.setToken = function(info){
 
 exports.verToken = function(token){
     return new Promise((resolve,reject)=>{
-        var info = jwt.verify(token.split(' ')[1],signkey);
-        resolve(info);
+        // token.split(' ')[1]
+       jwt.verify(token,signkey,(error, decoded) => {
+                if (error) {
+                    console.log(error.message)
+
+                    reject(error);
+                }else{
+                    console.log(decoded)
+                    resolve(decoded);
+                }
+
+        });
+
     })
 }

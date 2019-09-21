@@ -72,12 +72,14 @@ app.use(function (req, res, next) {
         if (!token){
             token = par.token;
         }
+
         if (!token){
             res.send({status: 403, msg: '请传递参数token'});
         }else{
+
             token_verify.verToken(token).then((data)=> {
                 req.data = data;
-                return next();
+                next();
             }).catch((error)=>{
                 console.log(error.message)
                 res.send({

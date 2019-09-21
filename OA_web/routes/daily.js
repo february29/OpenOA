@@ -48,6 +48,8 @@ router.post('/approvalDaily',  function(req, res, next){
     //参数检查
     var par = req.method == 'GET'?req.query:req.body;
 
+
+
     //type 1转报 2最终审核
     if (!par.daily_id ||!par.type || par.daily_id < 1 ||par.type < 1 ||par.type > 2 ){
         return  res.json({
@@ -105,13 +107,14 @@ router.post('/approvalDaily',  function(req, res, next){
        }
 
 
+
         Daily.approvalDaily(par.daily_id,
             dPar,
             {
                 add_time :new Date().valueOf(),
                 daily_id : par.daily_id,
                 info : par.info,
-                commit_id : par.commit_id,
+                commit_id : req.data.id,
                 next_id : par.next_id,
                 score : par.score,
             },
@@ -180,7 +183,7 @@ router.post('/dailyAdd',  function(req, res, next){
             content:par.content ,
             plane:par.plane ,
             low_id:par.low_id ,
-            commit_id:par.commit_id,
+            commit_id:req.data.id,
 
             state:0,
 
